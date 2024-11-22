@@ -36,6 +36,8 @@ class ContactIndex extends React.Component{
                 },
 
             ],
+            selectedContact:undefined,
+            isUpdating:false,
         };
     }
 
@@ -92,33 +94,115 @@ class ContactIndex extends React.Component{
         });
     }
 
+    handleAddRandomContact = (newContact) => {
+        const newFinalContact = {...newContact, id:this.state.contactList[this.state.contactList.length-1].id+1,
+            isFavorite:false
+        };
+
+        this.setState((prevState) => {
+            return{
+                contactList: prevState.contactList.concat([newFinalContact]),
+            };
+        });
+
+    }
+
+    handleRemoveAllContact = () => {
+        this.setState (() => {
+            return{
+                contactList:[{}],
+            }
+        });
+    }
+
+    handleUpdateClick = (contact) =>{
+        console.log(contact);
+        this.setState((prevState) =>{
+            return{
+                selectedContact: contact,
+                isUpdating: true,
+            }
+        })
+    }
+
+    handleCancelUpdateClick = (contact) =>{
+        console.log(contact);
+        this.setState((prevState) =>{
+            return{
+                selectedContact: undefined,
+                isUpdating: false,
+            }
+        })
+    }
+
+    handleUpdatingContact = (updatedcontact) => {
+        console.log(updatedcontact);
+        if(updatedcontact.name === ""){
+            return{status:"failed", msg:"Please Enter a Valid Name"};
+        }else if(updatedcontact.phone === ""){
+            return{status:"failed", msg:"Please Enter a Valid Phone Number"};
+        }
+
+        
+        this.setState((prevState) => {
+            return{
+                // eslint-disable-next-line eqeqeq
+                contactList: prevState.contactList.map((obj) => {
+                    if(obj.id === Number(updatedcontact.id)){
+                        return{
+                            ...obj,
+                            name: updatedcontact.name,
+                            email: updatedcontact.email,
+                            phone: updatedcontact.phone
+                        }
+                    }
+                    return obj;
+                }),
+                isUpdating: false,
+                selectedContact: undefined
+            };
+        });
+        return {status:"success", msg:"Contact was updated successfully!"};
+        
+    }
+
     render(){
         return(
             <div>
                 <Header></Header>
                 <div className="container" style={{minHeight:"85vh"}}>
                     <div className="row py-3">
-                        <div className="col-4 offset-2">
-                            <AddRandomContact></AddRandomContact>
+                        <div className="col-4 offset-2 row">
+                            <AddRandomContact 
+                                addRandomContact={this.handleAddRandomContact}
+                            ></AddRandomContact>
                         </div>
-                        <div className="col-4">
-                            <RemoveAllContact></RemoveAllContact>
+                        <div className="col-4 row">
+                            <RemoveAllContact removeAll={this.handleRemoveAllContact}></RemoveAllContact>
                         </div>
                         <div className="row py-2">
                             <div className="col-8 offset-2 row">
-                                <AddContact handleAddContact={this.handleAddingContact}></AddContact>
+                                <AddContact 
+                                    handleAddContact={this.handleAddingContact}
+                                    isUpdating={this.state.isUpdating} 
+                                    selectedContact={this.state.selectedContact}
+                                    CancelUpdateContact={this.handleCancelUpdateClick}
+                                    updateContact={this.handleUpdatingContact}
+                                ></AddContact>
                             </div>
                         </div>
                         <div className="row py-2">
                             <div className="col-8 offset-2 row">
                                 <FavoriteContacts contacts={this.state.contactList.filter((x) => x.isFavorite===true)}
-                                    favoriteClick={this.handleToggleFav} deleteContact={this.handleDeleteBtn}></FavoriteContacts>
+                                    favoriteClick={this.handleToggleFav} deleteContact={this.handleDeleteBtn}
+                                    editClick={this.handleUpdateClick}></FavoriteContacts>
                             </div>
                         </div>
                         <div className="row py-2">
                             <div className="col-8 offset-2 row">
                                 <GeneralContacts contacts={this.state.contactList.filter((x) => x.isFavorite===false)}
-                                    favoriteClick={this.handleToggleFav} deleteContact={this.handleDeleteBtn}></GeneralContacts>
+                                    favoriteClick={this.handleToggleFav} deleteContact={this.handleDeleteBtn}
+                                    editClick={this.handleUpdateClick}></GeneralContacts>
                             </div> 
                         </div>
                     </div>

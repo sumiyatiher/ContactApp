@@ -8,7 +8,10 @@ const GeneralContacts = (props) => {
         </div>
         <div className="p-2">
         {props.contacts.map((contact, index) => (
-            <Contact contact={contact} key={index} favoriteClick={props.favoriteClick} deleteContact={props.deleteContact} />
+            <Contact contact={contact} key={index} 
+            favoriteClick={props.favoriteClick} 
+            deleteContact={props.deleteContact} 
+            editClick={props.editClick}/>
         ))}
         </div>
     </div>
